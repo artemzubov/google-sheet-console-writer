@@ -10,9 +10,9 @@ import org.springframework.stereotype.Component;
 @Component
 @AllArgsConstructor
 public class SqlExecutor {
-    private final JdbcTemplate jdbcTemplate;
+  private final JdbcTemplate jdbcTemplate;
 
-    public SqlRowSet executeSql(String sqlExpression) {
-        return jdbcTemplate.queryForRowSet(sqlExpression);
-    }
+  public SqlRowSet executeSql(String sqlExpression) {
+    return jdbcTemplate.queryForRowSet(sqlExpression);
+  }
 }
