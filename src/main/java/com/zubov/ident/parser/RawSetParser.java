@@ -18,10 +18,19 @@ public class RawSetParser {
       int columnCount = sqlRowSet.getMetaData().getColumnCount();
       for (int i = 1; i <= columnCount; i++) {
         Object object = sqlRowSet.getObject(i);
-        objects.add(object != null ? object.toString() : "");
+        objects.add(object != null ? tryParse(object) : "");
       }
       lists.add(objects);
     }
     return lists;
+  }
+
+  // experimental
+  private Object tryParse(Object object) {
+    String s = object.toString();
+    if (s.matches("\\d+\\.\\d+")) {
+      return s.replace(".", ",");
+    }
+    return s;
   }
 }

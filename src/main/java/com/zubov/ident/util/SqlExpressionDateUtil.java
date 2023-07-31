@@ -11,7 +11,8 @@ public final class SqlExpressionDateUtil {
   private static final String DATE_PLACEHOLDER = "DATE_PLACEHOLDER";
 
   public static String insertCurrentDate(String sqlExpressionWithPlaceHolder) {
-    String dateFormatted = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
+    LocalDate yesterday = LocalDate.now().minusDays(1);
+    String dateFormatted = yesterday.format(DateTimeFormatter.ISO_LOCAL_DATE);
     return sqlExpressionWithPlaceHolder.replace(DATE_PLACEHOLDER, dateFormatted);
   }
 }

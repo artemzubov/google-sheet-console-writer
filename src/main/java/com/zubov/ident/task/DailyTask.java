@@ -1,11 +1,12 @@
 package com.zubov.ident.task;
 
-import com.zubov.ident.appender.GoogleSheetAppender;
 import com.zubov.ident.executor.SqlExecutor;
+import com.zubov.ident.google.api.GoogleSheetAppender;
+import com.zubov.ident.google.api.GoogleSheetCleaner;
 import com.zubov.ident.model.SqlWithProperties;
 import com.zubov.ident.parser.RawSetParser;
+import com.zubov.ident.util.FilesParserUtil;
 import com.zubov.ident.util.FilesUtil;
-import com.zubov.ident.util.PageToSqlWithPropertiesUtil;
 import com.zubov.ident.util.SqlExpressionDateUtil;
 import java.io.IOException;
 import java.util.List;
@@ -21,15 +22,23 @@ import org.springframework.stereotype.Component;
 @AllArgsConstructor
 public class DailyTask {
   private final GoogleSheetAppender googleSheetAppender;
+  private final GoogleSheetCleaner googleSheetCleaner;
   private final SqlExecutor sqlExecutor;
   private final RawSetParser rawSetParser;
 
   @Scheduled(cron = "0 0 5 * * *") // every day at 05:00:00
-  //  @Scheduled(cron = "*/10 * * * * *")
   public void mainJob() {
     try {
+      FilesUtil.getFilesToClean().stream()
+          .map(FilesParserUtil::parseFilesToClean)
+          .forEach(
+              file -> googleSheetCleaner.clear(file.getGoogleDocId(), file.getGoogleDocPageId()));
+    } catch (Exception e) {
+      log.error("Couldn't even read files to clean");
+    }
+    try {
       FilesUtil.getListOfSqlFiles().stream()
-          .map(PageToSqlWithPropertiesUtil::parse)
+          .map(FilesParserUtil::parseSqlWithProperties)
           .forEach(this::processFile);
     } catch (Exception e) {
       log.error("Couldn't even read file with sqlList");
